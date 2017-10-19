@@ -1,0 +1,27 @@
+machine:
+  pre:
+    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+  services:
+    - docker
+
+dependencies:
+  pre:
+    - echo 'Dependencies should be listed here'
+
+test:
+  override:
+    - echo 'No test we say it is okay'
+
+deployment:
+  hub:
+    branch: /.*/
+    commands:
+      - docker login -e $DOCKER_HUB_EMAIL -u $DOCKER_HUB_USER_ID -p $DOCKER_HUB_PWD
+      - docker tag test_mydbapp $DOCKER_HUB_USER_ID/test_mydbapp:$CIRCLE_SHA1
+      - docker tag test_mydbapp $DOCKER_HUB_USER_ID/test_mydbapp:latest
+      - docker tag test_db $DOCKER_HUB_USER_ID/test_mydb:$CIRCLE_SHA1
+      - docker tag test_db $DOCKER_HUB_USER_ID/test_mydb:latest
+      - docker push $DOCKER_HUB_USER_ID/test_mydbapp:$CIRCLE_SHA1
+      - docker push $DOCKER_HUB_USER_ID/test_mydbapp:latest
+      - docker push $DOCKER_HUB_USER_ID/test_mydb:$CIRCLE_SHA1
+      - docker push $DOCKER_HUB_USER_ID/test_mydb:latest
